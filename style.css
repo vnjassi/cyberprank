@@ -1,48 +1,21 @@
-body{
+body {
   margin:0;
-  background:black;
   overflow:hidden;
-  font-family:Arial;
-  color:white;
-}
-
-/* intro text */
-.intro{
-  position:absolute;
-  width:100%;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
   background:black;
+  font-family:Arial;
+}
+#startBtn {
+  position:absolute;
+  top:20px;
+  left:20px;
+  padding:15px 30px;
+  background:cyan;
+  border:none;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
   z-index:5;
 }
-
-h1{
-  font-size:40px;
-  color:cyan;
-  animation: glow 1s infinite alternate;
-}
-
-@keyframes glow{
-  from{ text-shadow:0 0 10px cyan; }
-  to{ text-shadow:0 0 40px magenta; }
-}
-
-/* 3D scene */
-.scene{
-  perspective:800px;
-  width:100%;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  opacity:0;
-  transition:2s;
-}
-
-.robot{
-  font-size:120px;
-  transform:rotateY(90deg) scale(0);
-  transition:2s;
+canvas {
+  display:block;
 }
