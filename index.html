@@ -2,13 +2,102 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cyberpunk 3D Game-Level Site</title>
-<link rel="stylesheet" href="style.css">
+<title>Cyberpunk 3D Demo</title>
+<style>
+body{margin:0;overflow:hidden;background:black;font-family:Arial;}
+button{
+  position:absolute;top:20px;left:20px;padding:15px 30px;
+  background:cyan;border:none;color:black;font-weight:bold;cursor:pointer;z-index:5;
+}
+</style>
 </head>
 <body>
 <button id="startBtn">Start Cinematic</button>
-<canvas id="scene"></canvas>
+<script type="module">
+import * as THREE from "https://unpkg.com/three@0.152.0/build/three.module.js";
 
-<script type="module" src="script.js"></script>
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x000000,10,100);
+
+// camera
+const camera = new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,1000);
+camera.position.set(-15,5,15);
+
+// renderer
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// neon lights
+const neon1 = new THREE.PointLight(0x00ffff, 5, 100);
+neon1.position.set(20,10,20); scene.add(neon1);
+const neon2 = new THREE.PointLight(0xff00ff, 5, 100);
+neon2.position.set(-20,10,20); scene.add(neon2);
+
+// ground
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(200,50),
+  new THREE.MeshStandardMaterial({color:0x111111,metalness:0.9,roughness:0.1})
+);
+road.rotation.x = -Math.PI/2; scene.add(road);
+
+// robot placeholder
+const robot = new THREE.Mesh(
+  new THREE.BoxGeometry(1.5,2,1),
+  new THREE.MeshStandardMaterial({color:0x00ffff,emissive:0x00ffff})
+);
+robot.position.set(-50,1,0); scene.add(robot);
+
+// buildings
+for(let i=-50;i<50;i+=5){
+  let h=Math.random()*20+5;
+  let geo=new THREE.BoxGeometry(3,h,3);
+  let mat=new THREE.MeshStandardMaterial({color:0x111111});
+  let b1=new THREE.Mesh(geo,mat); b1.position.set(i,h/2,-15); scene.add(b1);
+  let b2=new THREE.Mesh(geo,mat); b2.position.set(i,h/2,15); scene.add(b2);
+}
+
+// rain
+const rainGeo=new THREE.BufferGeometry();
+const pos=[];
+for(let i=0;i<3000;i++){
+  pos.push((Math.random()-0.5)*200);
+  pos.push(Math.random()*50);
+  pos.push((Math.random()-0.5)*50);
+}
+rainGeo.setAttribute("position", new THREE.Float32BufferAttribute(pos,3));
+const rain=new THREE.Points(rainGeo,new THREE.PointsMaterial({color:0x00ffff,size:0.07}));
+scene.add(rain);
+
+// animate
+let running=false;
+document.getElementById("startBtn").onclick = ()=>running=true;
+
+function animate(){
+  requestAnimationFrame(animate);
+  if(running){
+    robot.position.x+=0.3;
+    camera.position.x+=0.3;
+    camera.lookAt(robot.position);
+  }
+  // rain
+  const p=rain.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){
+    p.array[i*3+1]-=0.7;
+    if(p.array[i*3+1]<0) p.array[i*3+1]=50;
+  }
+  p.needsUpdate=true;
+
+  renderer.render(scene,camera);
+}
+animate();
+
+// handle resize
+window.addEventListener('resize', ()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+</script>
 </body>
 </html>
